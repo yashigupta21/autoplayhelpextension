@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "AutoSkip Helper",
+  "version": "1.0",
+  "description": "Skips intros, ads, and plays next episodes automatically.",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.netflix.com/*",
+    "*://*.primevideo.com/*",
+    "*://*.hotstar.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*",
+        "*://*.netflix.com/*",
+        "*://*.primevideo.com/*",
+        "*://*.hotstar.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon128.png"
+  }
+}
