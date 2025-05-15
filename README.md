@@ -77,4 +77,4 @@ MIT License — Free to use, modify, and distribute.
 
 ## 👨‍💻 Author
 
-Crafted with care by [Your Name or Handle]
+Crafted with care by Yashi Gupta
