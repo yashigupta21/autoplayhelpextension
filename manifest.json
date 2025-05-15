@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "AutoSkip Helper",
   "version": "1.0",
   "description": "Skips intros, ads, and plays next episodes automatically.",
