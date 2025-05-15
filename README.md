@@ -1,58 +1,80 @@
-# 🎬 AutoSkip Helper
+# 🎬 Netflix AutoSkip
 
-**AutoSkip Helper** is a browser extension for Chrome and Firefox that automatically:
-- ⏭️ Skips YouTube ads when the "Skip Ad" button appears
-- 🎞️ Skips intros on platforms like Netflix, Prime Video, and Hotstar
-- 📺 Moves to the next episode automatically
+**Netflix AutoSkip** is a lightweight browser extension that automatically:
+- ⏭️ Clicks **"Skip Intro"** on Netflix
+- ▶️ Clicks **"Next Episode"** when it appears
+
+This tool helps you binge-watch Netflix without interruptions.
 
 ---
 
 ## 🚀 Features
 
-- ✅ **Auto-click "Skip Ad"** on YouTube
-- ✅ **Auto-click "Skip Intro"** on OTT platforms
-- ✅ **Auto-click "Next Episode"** on binge-worthy series
-- ✅ **Toggle features from a popup UI**
-- ✅ **Works on:**
-  - YouTube
-  - Netflix
-  - Amazon Prime Video
-  - Disney+ Hotstar
+- ✅ Automatically clicks:
+  - "Skip Intro"
+  - "Next Episode"
+- ✅ Runs silently in the background
+- ✅ Works with:
+  - Chrome (Manifest V2 supported via temporary loading)
+  - Firefox (Temporary add-on installation)
 
 ---
 
-## 🔧 Installation Instructions
+## 📦 Folder Structure
 
-### 🧪 For Chrome
+```
+netflix-auto-skip/
+├── manifest.json
+└── content.js
+```
+
+---
+
+## 🔧 Installation
+
+### For Chrome
 
 1. Go to `chrome://extensions/`
-2. Enable **Developer Mode** (top right)
-3. Click **Load unpacked**
-4. Select the `autoplay-helper-extension/` folder
+2. Enable **Developer Mode** (top-right)
+3. Click **Load Unpacked**
+4. Select the `netflix-auto-skip/` folder
 
-### 🦊 For Firefox
+### For Firefox
 
 1. Go to `about:debugging`
 2. Click **This Firefox**
 3. Click **Load Temporary Add-on**
-4. Select the `manifest.json` inside the extension folder
-
----
-
-## 🖼 UI Preview
-
-The popup lets you enable or disable:
-- Skip YouTube Ads
-- Skip Intros
-- Auto Next Episode
-
-![Popup UI Screenshot](assets/popup-preview.png) *(optional if you have)*
+4. Select the `manifest.json` file
 
 ---
 
 ## 🧠 How It Works
 
-- The extension uses content scripts to monitor page content.
-- When it detects known selectors (e.g., `.ytp-ad-skip-button`), it simulates a click.
-- Users can toggle which features are active using the popup.
-/***
+The script searches for all buttons on the Netflix page every second.
+If it finds a button containing:
+- “Skip Intro”
+- “Next Episode”
+
+...it automatically clicks it for you.
+
+No configuration, no setup — it just works.
+
+---
+
+## ⚠️ Limitations
+
+- Designed specifically for **Netflix desktop browser**.
+- May break if Netflix changes its button labels or structure.
+- Not currently published in any extension store — manual installation only.
+
+---
+
+## 📜 License
+
+MIT License — Free to use, modify, and distribute.
+
+---
+
+## 👨‍💻 Author
+
+Crafted with care by [Your Name or Handle]
