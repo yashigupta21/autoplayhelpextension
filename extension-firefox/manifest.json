@@ -2,16 +2,10 @@
   "manifest_version": 2,
   "name": "AutoSkip Helper",
   "version": "1.0",
-  "description": "Skips intros, ads, and plays next episodes automatically.",
-  "permissions": ["storage", "scripting", "activeTab"],
-  "host_permissions": [
-    "*://*.youtube.com/*",
-    "*://*.netflix.com/*",
-    "*://*.primevideo.com/*",
-    "*://*.hotstar.com/*"
-  ],
+  "description": "Automatically skips ads, intros, and moves to next episodes.",
+  "permissions": ["storage", "activeTab"],
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
@@ -25,8 +19,9 @@
       "run_at": "document_idle"
     }
   ],
-  "action": {
+  "browser_action": {
+    "default_icon": "icons/icon128.png",
     "default_popup": "popup.html",
-    "default_icon": "icons/icon128.png"
+    "default_title": "AutoSkip Helper"
   }
 }
