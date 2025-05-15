@@ -1,27 +1,14 @@
 {
   "manifest_version": 2,
-  "name": "AutoSkip Helper",
-  "version": "1.0",
-  "description": "Automatically skips ads, intros, and moves to next episodes.",
-  "permissions": ["storage", "activeTab"],
-  "background": {
-    "scripts": ["background.js"]
-  },
+  "name": "Netflix AutoSkip",
+  "version": "1.1",
+  "description": "Automatically skips intros and clicks 'Next Episode' on Netflix.",
+  "permissions": ["*://*.netflix.com/*"],
   "content_scripts": [
     {
-      "matches": [
-        "*://*.youtube.com/*",
-        "*://*.netflix.com/*",
-        "*://*.primevideo.com/*",
-        "*://*.hotstar.com/*"
-      ],
+      "matches": ["*://*.netflix.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ],
-  "browser_action": {
-    "default_icon": "icons/icon128.png",
-    "default_popup": "popup.html",
-    "default_title": "AutoSkip Helper"
-  }
+  ]
 }
