@@ -1,13 +1,54 @@
-// content.js — only Skip Intro + Next Episode at the right time
+// content.js — Skip Intro, Skip Recap, Continue Watching, Next Episode
 (() => {
-  const LOG = '[AutoSkip]';
-  const SKIP_TEXT = 'skip intro';
+  const LOG           = '[AutoSkip]';
+  const SKIP_TEXT     = 'skip intro';
+  const RECAP_TEXT    = 'skip recap';
+  const CONTINUE_TEXT = 'continue watching';
   const NEXT_DATA_UIA = 'next-episode-seamless-button';
-  const NEXT_THRESHOLD = 0.95; // 95% into episode
-  const EPISODE_COOLDOWN_MS = 10000;
+
+  // Mutable settings — updated from storage
+  let enabled             = true;
+  let NEXT_THRESHOLD      = 0.95;
+  let EPISODE_COOLDOWN_MS = 10000;
+  let skipIntro           = true;
+  let skipRecap           = true;
+  let nextEpisode         = true;
+  let continueWatching    = true;
 
   function log(...a) { console.log(LOG, ...a); }
 
+  // ── Load settings from storage on page load ──────────────────────
+  chrome.storage.local.get(
+    {
+      enabled: true, nextThreshold: 0.95, cooldownMs: 10000,
+      skipIntro: true, skipRecap: true, nextEpisode: true, continueWatching: true
+    },
+    (result) => {
+      enabled             = result.enabled;
+      NEXT_THRESHOLD      = result.nextThreshold;
+      EPISODE_COOLDOWN_MS = result.cooldownMs;
+      skipIntro           = result.skipIntro;
+      skipRecap           = result.skipRecap;
+      nextEpisode         = result.nextEpisode;
+      continueWatching    = result.continueWatching;
+      log('Loaded settings:', result);
+    }
+  );
+
+  // ── React to settings changes from popup / options page ──────────
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    if (changes.enabled            !== undefined) enabled             = changes.enabled.newValue;
+    if (changes.nextThreshold      !== undefined) NEXT_THRESHOLD      = changes.nextThreshold.newValue;
+    if (changes.cooldownMs         !== undefined) EPISODE_COOLDOWN_MS = changes.cooldownMs.newValue;
+    if (changes.skipIntro          !== undefined) skipIntro           = changes.skipIntro.newValue;
+    if (changes.skipRecap          !== undefined) skipRecap           = changes.skipRecap.newValue;
+    if (changes.nextEpisode        !== undefined) nextEpisode         = changes.nextEpisode.newValue;
+    if (changes.continueWatching   !== undefined) continueWatching    = changes.continueWatching.newValue;
+    log('Settings updated:', { enabled, NEXT_THRESHOLD, EPISODE_COOLDOWN_MS, skipIntro, skipRecap, nextEpisode, continueWatching });
+  });
+
+  // ── DOM helpers ──────────────────────────────────────────────────
   function isVisible(el) {
     if (!el) return false;
     const style = window.getComputedStyle(el);
@@ -24,9 +65,9 @@
     return video && video.duration ? video.currentTime / video.duration : 0;
   }
 
-  function findSkipIntro() {
+  function findByText(text) {
     return Array.from(document.querySelectorAll('button, [role="button"]'))
-      .find(b => isVisible(b) && (b.innerText || '').trim().toLowerCase() === SKIP_TEXT);
+      .find(b => isVisible(b) && (b.innerText || '').trim().toLowerCase() === text);
   }
 
   function findNextEpisode() {
@@ -35,9 +76,9 @@
     return null;
   }
 
+  // ── Cooldown tracking ────────────────────────────────────────────
   function episodeKey() {
-    const v = getVideo();
-    return (location.pathname + '|' + (v ? v.currentSrc : ''));
+    return location.pathname; // stable across currentSrc blob/CDN changes
   }
 
   const lastClicked = {};
@@ -48,8 +89,14 @@
 
   function markClicked(key) {
     lastClicked[key] = Date.now();
+    // Prune stale entries to prevent unbounded memory growth
+    const cutoff = Date.now() - EPISODE_COOLDOWN_MS * 2;
+    for (const k of Object.keys(lastClicked)) {
+      if (lastClicked[k] < cutoff) delete lastClicked[k];
+    }
   }
 
+  // ── Click ────────────────────────────────────────────────────────
   function safeClick(el, why) {
     try {
       el.click();
@@ -59,26 +106,38 @@
     }
   }
 
+  function tryClick(btn, label, cooldownSuffix) {
+    if (!btn) return false;
+    const key = episodeKey() + cooldownSuffix;
+    if (recentlyClicked(key)) return false;
+    safeClick(btn, label);
+    markClicked(key);
+    return true;
+  }
+
+  // ── Main check ───────────────────────────────────────────────────
   function check() {
-    const key = episodeKey();
+    if (!enabled) return;
 
-    const skip = findSkipIntro();
-    if (skip && !recentlyClicked(key)) {
-      safeClick(skip, 'Skip Intro');
-      markClicked(key);
-      return;
-    }
+    if (skipIntro && tryClick(findByText(SKIP_TEXT), 'Skip Intro', ':skip')) return;
+    if (skipRecap && tryClick(findByText(RECAP_TEXT), 'Skip Recap', ':recap')) return;
+    if (continueWatching && tryClick(findByText(CONTINUE_TEXT), 'Continue Watching', ':continue')) return;
 
-    const next = findNextEpisode();
-    const video = getVideo();
-    if (next && video && (video.ended || playbackFraction(video) >= NEXT_THRESHOLD) && !recentlyClicked(key)) {
-      safeClick(next, 'Next Episode');
-      markClicked(key);
+    if (nextEpisode) {
+      const next  = findNextEpisode();
+      const video = getVideo();
+      if (next && video && (video.ended || playbackFraction(video) >= NEXT_THRESHOLD)) {
+        tryClick(next, 'Next Episode', ':next');
+      }
     }
   }
 
-  // Observe DOM changes + check regularly
-  const obs = new MutationObserver(() => check());
+  // Debounced observer — avoids firing check() on every micro DOM mutation
+  let debounceTimer = null;
+  const obs = new MutationObserver(() => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(check, 200);
+  });
   obs.observe(document, { childList: true, subtree: true });
   setInterval(check, 1000);
 

@@ -1,12 +1,20 @@
 {
   "manifest_version": 3,
   "name": "Netflix AutoSkip",
-  "version": "1.0.0",
-  "description": "Automatically clicks 'Skip Intro' and 'Next Episode' on Netflix.",
-  "permissions": [],
+  "version": "1.3.0",
+  "description": "Automatically skips intros, recaps, and advances to the next episode on Netflix.",
+  "author": "Yashi Gupta",
+  "minimum_chrome_version": "88",
+  "permissions": ["storage"],
   "host_permissions": [
     "*://*.netflix.com/*"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{68a98c8c-bb23-4ecd-ba12-5549d19124a2}",
+      "strict_min_version": "109.0"
+    }
+  },
   "content_scripts": [
     {
       "matches": ["*://*.netflix.com/*"],
@@ -15,6 +23,22 @@
     }
   ],
   "action": {
-    "default_title": "Netflix AutoSkip"
+    "default_title": "Netflix AutoSkip",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   }
 }
