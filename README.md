@@ -25,8 +25,8 @@ autoplayhelpextension/
 ├── manifest.json
 ├── content.js          — core skip logic
 ├── popup.html/js       — toolbar toggle UI
-├── background.js       — service worker, sets defaults on install
 ├── options.html/js     — settings page (threshold, cooldown, per-feature toggles)
+├── shared.css          — styles shared by popup and options
 ├── icons/
 │   ├── icon16.png
 │   ├── icon48.png
